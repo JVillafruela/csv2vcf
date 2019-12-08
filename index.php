@@ -83,22 +83,19 @@ END:VCARD
 
 if(isset($_REQUEST["convert"])) // detect upload of file
 {
-	$allowedExts = array("csv"); // "gif", "jpeg", "jpg", "png"
+	$allowedExts = array('csv','txt'); // MMM 
 	$maximumFileSizeInKBytes = 4096;
 
 	$allowedExts_string = "";
-	$target = count($allowedExts);
-	for($i=0;$i<$target;$i++)
-	{
+	for($i=0;$i<count($allowedExts);$i++) {
 		$allowedExts_string .= "*.".$allowedExts[$i].", ";
-		$allowedExts[] = "text/".$allowedExts[$i];
 	}
 	
 	$maximumFileSizeInBytes = $maximumFileSizeInKBytes * 1024;
 	
 	if($_FILES)
 	{
-		if(checkExtension($_FILES["file"]["type"]))
+		if(checkExtension($allowedExts)) // MMM
 		{
 			if(($_FILES["file"]["size"] < $maximumFileSizeInBytes))
 			{
@@ -132,7 +129,7 @@ else
 {
 	echo '
 
-			<form action="csv2vcf_v2.php" method="post" enctype="multipart/form-data">
+			<form method="post" enctype="multipart/form-data">
 				<label for="file">Please select your File.csv then hit convert:</label>
 				<input type="file" name="file" id="file" style="width: 100%;">
 				<br>
@@ -159,27 +156,15 @@ organistion0
 	';
 }
 
-function checkExtension($ext)
+// MMM verifie que le fichier envoye a l'une des extensions de $allowedExts 
+function checkExtension(array $allowedExts)
 {
 	$upload_filename = $_FILES["file"]["name"];
 	$upload_filename_array = explode(".", $upload_filename);
-	$extension = end($upload_filename_array);
+	$extension = strtolower(end($upload_filename_array));
 
-	$result = false;
-	global $allowedExts;
-	if(in_array($_FILES["file"]["type"], $allowedExts))
-	{
-		if(in_array($extension, $allowedExts))
-		{
-			$result = true;
-		}
-		else
-		{
-			$result = false;
-		}
-	}
-
-	return $result;
+	$key = array_search($extension, $allowedExts);
+	return $key !== false;
 }
 
 
